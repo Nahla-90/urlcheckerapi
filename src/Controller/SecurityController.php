@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * Class SecurityController
  * @package App\Controller
  */
-class SecurityController extends FOSRestController
+class SecurityController extends BaseAuthorizeController
 {
     /**
      * Created By Nahla Sameh
@@ -33,7 +33,7 @@ class SecurityController extends FOSRestController
         /* Get token from request header*/
         $token = $request->headers->get('Authorization', '');
 
-        if ($this->_checkAuthToken($token)) {/* check if token is authenticated*/
+        if (parent::_checkAuthToken($token)) {/* check if token is authenticated*/
             return new JsonResponse(array('isLogin' => true), 200);
         }
         return new JsonResponse(array(
@@ -61,7 +61,7 @@ class SecurityController extends FOSRestController
         $password = $request->request->get('password', '');
 
         /* Check If User Email or Username exist */
-        $clientExistResult = $this->_checkClientExist($email, $username);
+        $clientExistResult = parent::_checkClientExist($email, $username);
         if (!$clientExistResult['isRegistered']) {
             return new JsonResponse($clientExistResult, 200);
         }
@@ -133,79 +133,5 @@ class SecurityController extends FOSRestController
 
         /* Password not verified */
         return new JsonResponse(array('isLoggedIn' => false, 'message' => 'Password not right'), 200);
-    }
-
-    /**
-     * Created By Nahla Sameh
-     * Check if client email or username exist before
-     * @param $email
-     * @param $username
-     * @return array
-     */
-    private function _checkClientExist($email, $username)
-    {
-        /** @var ClientRepository $clientRepository */
-        $clientRepository = $this->getDoctrine()->getRepository(Client::class);
-
-        /* Check If User Email exist */
-        $clientExist = $clientRepository->findOneBy(['email' => $email]);
-        if ($clientExist !== null) {
-            return array(
-                'isRegistered' => false,
-                'message' => 'Email exist before.');
-        }
-
-        /* Check If User Username exist */
-        $clientExist = $clientRepository->findOneBy(['username' => $username]);
-        if ($clientExist !== null) {
-            return array(
-                'isRegistered' => false,
-                'message' => 'Username exist before.');
-        }
-        /* Email and username not exist before*/
-        return array(
-            'isRegistered' => true
-        );
-    }
-
-    /**
-     * Created By Nahla Sameh
-     * Create Authentication token
-     * @param $username
-     * @return string
-     */
-    private function _getAuthToken($username)
-    {
-        $session = new Session();
-       //session->get('token');
-        $token = md5(uniqid(rand(), true));
-        $session->set('token', $token);
-        $session->set('username', $username);
-        return $token;
-    }
-
-    /**
-     * Created By Nahla Sameh
-     * Check if authentication token is right
-     * @param $token
-     * @return bool
-     */
-    private function _checkAuthToken($token)
-    {
-        $session = new Session();
-        if ($session->get('token') === $token) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Created By Nahla Sameh
-     * Remove Current client token
-     */
-    private function _removeCurrentToken()
-    {
-        $session = new Session();
-        $session->remove('token');
     }
 }

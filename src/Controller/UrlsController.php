@@ -18,7 +18,7 @@ use FOS\RestBundle\Controller\Annotations\Patch;
  * Class UrlsController
  * @package App\Controller
  */
-class UrlsController extends FOSRestController
+class UrlsController extends BaseAuthorizeController
 {
 
     /**
@@ -34,6 +34,12 @@ class UrlsController extends FOSRestController
      */
     public function urls(Request $request, UrlsRepository $urlsRepository): JsonResponse
     {
+        /* Get token from request header*/
+        $token = $request->headers->get('Authorization', '');
+        if (!$this->_checkAuthToken($token)) {/* check if token is authenticated*/
+            return new JsonResponse(array(), 401);
+        }
+
         /* Get Client Username */
         $clientUsername = $this->_getCurrentUsername();
 
@@ -65,6 +71,12 @@ class UrlsController extends FOSRestController
      */
     public function create(Request $request, ClientRepository $clientRepository)
     {
+        /* Get token from request header*/
+        $token = $request->headers->get('Authorization', '');
+        if (!$this->_checkAuthToken($token)) {/* check if token is authenticated*/
+            return new JsonResponse(array(), 401);
+        }
+
         /* Get Url text*/
         $text = $request->request->get('text', '');
 
@@ -91,12 +103,19 @@ class UrlsController extends FOSRestController
      *     "/api/v1/urls/{id}",
      *      name="status"
      * )
+     * @param Request $request
      * @param UrlsRepository $urlsRepository
      * @param $id
      * @return JsonResponse
      */
-    public function status(UrlsRepository $urlsRepository, $id)
+    public function status(Request $request, UrlsRepository $urlsRepository, $id)
     {
+        /* Get token from request header*/
+        $token = $request->headers->get('Authorization', '');
+        if (!$this->_checkAuthToken($token)) {/* check if token is authenticated*/
+            return new JsonResponse(array(), 401);
+        }
+
         /* Get Url Entity */
         $url = $urlsRepository->find($id);
 
@@ -116,12 +135,19 @@ class UrlsController extends FOSRestController
      *     "/api/v1/urls/{id}",
      *      name="delete"
      * )
+     * @param Request $request
      * @param UrlsRepository $urlsRepository
      * @param $id
      * @return JsonResponse
      */
-    public function delete(UrlsRepository $urlsRepository, $id)
+    public function delete(Request $request, UrlsRepository $urlsRepository, $id)
     {
+        /* Get token from request header*/
+        $token = $request->headers->get('Authorization', '');
+        if (!$this->_checkAuthToken($token)) {/* check if token is authenticated*/
+            return new JsonResponse(array(), 401);
+        }
+
         /* Get Url Entity */
         $url = $urlsRepository->find($id);
 
@@ -147,6 +173,12 @@ class UrlsController extends FOSRestController
      */
     public function update(Request $request, UrlsRepository $urlsRepository, $id)
     {
+        /* Get token from request header*/
+        $token = $request->headers->get('Authorization', '');
+        if (!$this->_checkAuthToken($token)) {/* check if token is authenticated*/
+            return new JsonResponse(array(), 401);
+        }
+
         /* Get Updated text*/
         $text = $request->request->get('text', '');
 
